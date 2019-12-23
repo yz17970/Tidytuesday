@@ -1,0 +1,131 @@
+---
+title: '121719'
+author: "Sea"
+date: "12/23/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+get the data
+```{r}
+dog_travel <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-12-17/dog_travel.csv')
+dog_descriptions <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-12-17/dog_descriptions.csv')
+
+```
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+data <- merge(dog_descriptions, dog_travel, all = TRUE)
+head(data)
+```
+
+```{r}
+data %>%
+  count(breed_primary) %>%
+  arrange(desc(n))
+```
+
+```{r}
+data %>%
+  count(contact_state) %>%
+  arrange(desc(n))
+```
+
+```{r}
+breed_state <- data %>%
+  group_by(contact_state) %>%
+  count(breed_primary) %>%
+  top_n(1, n)
+
+breed_state <- breed_state[27:84,]
+
+breed_state %>%
+  count(contact_state, sort = TRUE)
+
+breed_state
+
+breed_state %>%
+  ggplot(aes(contact_state, n)) + geom_point()
+
+
+
+```
+
+
+#the age distribution of adoptable dogs in each state in US.
+
+```{r}
+head(data)
+
+```
+
+```{r}
+data1 <- data %>%
+  group_by(contact_state) %>%
+  arrange(contact_state)
+
+data1 <- data1[42-60260, ]
+
+data1 %>%
+  group_by(contact_state) %>%
+  count(age, sort = TRUE) %>%
+  mutate(pct = n/sum(n)) %>%
+  ggplot(aes(contact_state, pct, fill = age)) + geom_bar(stat = "identity") +
+  coord_flip() + theme_minimal() + scale_fill_brewer()
+
+```
+
+#the age distribution of dogs in top 10 US states with most adoptable dogs  
+```{r}
+data %>%
+  count(contact_state, sort = TRUE) %>%
+  arrange(desc(n)) %>%
+  head(10) %>%
+  ggplot(aes(fct_reorder(contact_state, n), n)) + geom_bar(stat = "identity") +
+  theme_minimal() + labs(x = "US States", y = "number of adoptable dogs", title = "the top 10 US states with most adoptable dogs")
+
+ggsave("the top 10 US states with most adoptable dogs.jpg")
+
+
+
+```
+
+```{r}
+states <- data %>%
+  count(contact_state, sort = TRUE) %>%
+  arrange(desc(n)) %>%
+  head(10) %>%
+  pull(contact_state)
+
+data %>%
+  filter(contact_state %in% states) %>%
+  group_by(contact_state) %>%
+  count(age, sort = TRUE) %>%
+  ggplot(aes(contact_state, n, fill = age)) + geom_bar(stat = "identity") +
+  theme_minimal() + labs(x = "top 10 US states with most adoptable dogs", y =  "number of dogs", title = "age distribution of dogs in top 10 US states with most adoptable dogs" ) + scale_fill_brewer(palette = 4)
+
+ggsave("age distribution of dogs in top 10 US states with most adoptable dogs.jpg")
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
