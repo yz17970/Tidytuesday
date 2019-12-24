@@ -1,0 +1,114 @@
+---
+title: "Xmas songs"
+author: "Sea"
+date: "12/24/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+
+christmas_songs <- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-12-24/christmas_songs.csv")
+```
+
+```{r}
+christmas_songs %>%
+  view()
+
+```
+
+```{r}
+p1 <- christmas_songs %>%
+  count(performer, sort = TRUE) %>%
+  top_n(10) %>%
+  ggplot(aes(fct_reorder(performer, n), n, fill = performer)) + geom_bar(stat = "identity", width = 0.7, show.legend = FALSE) + coord_flip() + theme_minimal() + scale_fill_brewer(type = "qual", palette = 3) + labs(y = "# of songs", x = "performer", title = "Top 10 performers with most Xmas music on Billboards")
+
+ggsave("Top 10 performers with most Xmas music on Billboards.jpg")
+
+```
+
+#most popular Xmas songs before 2017
+
+```{r}
+p2 <- christmas_songs %>%
+  count(song, sort = TRUE) %>% 
+  top_n(10) %>%
+  ggplot(aes(fct_reorder(song, n), n, fill = song)) + geom_bar(stat = "identity", show.legend = FALSE, width = 0.7) + coord_flip() + scale_fill_brewer(type = "qual", palette = 3) + labs(x = "songs", y = "times on Billboards", title = "Most popular Xmas songs 1958-2017") + theme_minimal()
+
+ggsave("Most popular Xmas songs 1958-2017.jpg")
+```
+
+What's the trend of these songs on Billboards
+```{r}
+data1 <- christmas_songs %>%
+  count(song, sort = TRUE) %>% 
+  top_n(10)
+
+data1
+
+christmas_songs %>%
+  filter(song %in% data1$song) %>%
+  group_by(song, year) %>%
+  top_n(1)
+  
+
+
+```
+
+
+```{r}
+christmas_lyrics <- readr::read_tsv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-12-24/christmas_lyrics.tsv")
+
+
+```
+
+
+#top Xmas songs 1958-2017
+
+```{r}
+p3 <- christmas_songs %>%
+  group_by(year) %>%
+  arrange(peak_position) %>%
+  top_n(1) %>%
+  arrange(year) %>% 
+  head(30) %>%
+  ggplot(aes(year, song)) + geom_point() + theme_light() + labs(title = "top Xmas songs 1958-1966")
+
+ggsave("top Xmas songs 1968-1966.jpg")
+
+?geom_text
+  
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
